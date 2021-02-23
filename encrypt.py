@@ -51,6 +51,7 @@ def DNA_coding_encrypt(a,random_k):
         "CC": 15
         }
     ceasar_list=["0101","0011","0001","0010","0110","1111","0111","1001","1010","0100","1000","1100","1110","1011","0000","1101"]
+    random.shuffle(ceasar_list)
     EXP_STR=""
    
     for i in range(0,int(n/2),2):
