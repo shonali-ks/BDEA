@@ -1,42 +1,44 @@
-from threading import Thread
 import socket
-from encrypt import *
-from decrypt import *
+import threading
+import math
+import random
+from encrypt import xor,text_to_bits,text_from_bits,DNA_coding_encrypt,start_encrypt
+# from decrypt import *
 
-class MySendingThread(Thread):
-    def __init__(self, mySocket):
-        Thread.__init__(self)
-        self.mySocket = mySocket
+class Client:
+    def __init__(self):
+        self.create_connection()
 
-    def run(self):
-        # write code to send data to System_1
-        while True:
-            data = input()
-            data=start_encrypt(data)
-            self.mySocket.send(bytes(data, 'utf-8'))
+    def create_connection(self):
+        self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        
+        while 1:
+            try:
+                host = input('Enter host name --> ')
+                port = int(input('Enter port --> '))
+                self.s.connect((host,port))
+                
+                break
+            except:
+                print("Couldn't connect to server")
 
+        self.username = input('Enter username --> ')
+        self.s.send(self.username.encode())
+        
+        message_handler = threading.Thread(target=self.handle_messages,args=())
+        message_handler.start()
 
-class MyReceivingThread(Thread):
-    def __init__(self, mySocket):
-        Thread.__init__(self)
-        self.mySocket = mySocket
+        input_handler = threading.Thread(target=self.input_handler,args=())
+        input_handler.start()
 
-    def run(self):
-        # write code to receive data from System_1
-        while True:
-            msg = self.mySocket.recv(1024)
-            msg=start_decrypt(msg)
-            print(msg.decode('utf-8'))
+    def handle_messages(self):
+        while 1:
+            print(self.s.recv(1204).decode())
 
+    def input_handler(self):
+        while 1:
+            # in_str=input()
+            # in_str=start_encrypt(in_str)
+            self.s.send((self.username+' - '+start_encrypt(input())).encode())
 
-# create a socket object
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# send a connection request
-s.connect(('192.168.1.15', 2010))
-# create a thread to send data => System_1
-mySendThread = MySendingThread(s)
-# create a thread to receive data from System_1
-myReceiveThread = MyReceivingThread(s)
-# start both threads
-mySendThread.start()
-myReceiveThread.start()
+client = Client()

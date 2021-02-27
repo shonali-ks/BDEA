@@ -1,49 +1,62 @@
-from threading import Thread
 import socket
-from encrypt import *
-from decrypt import *
+import threading
 
-class SendingThread(Thread):
-    def __init__(self, mySocket):
-        Thread.__init__(self)
-        self.mySocket = mySocket
 
-    def run(self):
-        # write code to send data continuously
+class Server:
+    def __init__(self):
+        self.start_server()
+
+    def start_server(self):
+        self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        
+        host = socket.gethostbyname(socket.gethostname())
+        port = int(input('Enter port to run the server on --> '))
+
+        self.clients = []
+
+        self.s.bind((host,port))
+        self.s.listen(100)
+    
+        print('Running on host: '+str(host))
+        print('Running on port: '+str(port))
+
+        self.username_lookup = {}
+
         while True:
-            data = input()
-            data=start_encrypt(data)
-            self.mySocket.send(bytes(data, 'utf-8'))
+            c, addr = self.s.accept()
 
+            username = c.recv(1024).decode()
+            
+            print('New connection. Username: '+str(username))
+            self.broadcast('New person joined the room. Username: '+username)
 
-class ReceivingThread(Thread):
-    def __init__(self, mySocket):
-        Thread.__init__(self)
-        self.mySocket = mySocket
+            self.username_lookup[c] = username
 
-    def run(self):
-        # write code to receive data continuously
+            self.clients.append(c)
+             
+            threading.Thread(target=self.handle_client,args=(c,addr,)).start()
+
+    def broadcast(self,msg):
+        for connection in self.clients:
+            connection.send(msg.encode())
+
+    def handle_client(self,c,addr):
         while True:
-            msg = self.mySocket.recv(1024)
-            msg=start_decrypt(msg)
-            print(msg.decode('utf-8'))
+            try:
+                msg = c.recv(1024)
+            except:
+                c.shutdown(socket.SHUT_RDWR)
+                self.clients.remove(c)
+                
+                print(str(self.username_lookup[c])+' left the room.')
+                self.broadcast(str(self.username_lookup[c])+' has left the room.')
 
+                break
 
-# create a socket object
-s = socket.socket(
-    socket.AF_INET, # internet address family => IP v4
-    socket.SOCK_STREAM # TCP
-)
-# bind socket with a port number
-s.bind(('192.168.1.15', 2010))
-# keep System_1 in listening mode
-s.listen()
-# accept the incoming connection request
-mySocket, address = s.accept()
-# create a thread to send data
-sendThread = SendingThread(mySocket)
-# create an another to receive data
-receiveThread = ReceivingThread(mySocket)
-# start both threads
-sendThread.start()
-receiveThread.start()
+            if msg.decode() != '':
+                print('New message: '+str(msg.decode()))
+                for connection in self.clients:
+                    if connection != c:
+                        connection.send(msg)
+
+server = Server()
