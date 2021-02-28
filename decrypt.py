@@ -44,6 +44,7 @@ def DNA_coding_decrypt(a,random_k):
         }
 
     decr_li=["AA","AT","AG","AC","TA","TT","TG","TC","GA","GT","GG","GC","CA","CT","CG","CC"]
+    random.shuffle(decr_li)
 
     for i in range(0,len(a),4):
         d=int(KEY_COM.get((a[i:i+4])))
