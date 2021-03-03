@@ -53,6 +53,7 @@ def DNA_coding_encrypt(a,random_k):
         "CC": 15
         }
     val=list(KEY_COM.values())
+    random.shuffle(val)
     KEY_BIN=[]
     for i in val:
         binary=str(decimalToBinary(i))
@@ -60,7 +61,7 @@ def DNA_coding_encrypt(a,random_k):
         for j in range(0,4-x):
             binary="0"+binary
         KEY_BIN.append(binary)
-    random.shuffle(KEY_BIN)
+    
 
 
     EXP_STR=""
