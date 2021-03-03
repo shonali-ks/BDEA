@@ -90,6 +90,7 @@ def start_encrypt(str1):
     n=len(res)
     z=8
     key=res[0:z]
+    key.append(KEY_BIN)
     xored_str=""
     cr=math.pow(2,wq)
     while z<cr:
