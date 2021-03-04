@@ -21,35 +21,25 @@ def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
    
 
 
-def DNA_coding_decrypt(a,random_k):
+def DNA_coding_decrypt(a,cea_list):
     Com_strn=""
-
-    KEY_COM={
-        "0101":0,
-        "0011":1,
-        "0001":2,
-        "0010":3,
-        "0110":4,
-        "1111":5,
-        "0111":6,  
-        "1001":7,
-        "1010":8,
-        "0100":9,
-        "1000":10,
-        "1100":11,
-        "1110":12,
-        "1011":13,
-        "0000":14,
-        "1101":15
-        }
-
+    KEY_COM=[]
+    for i in range(0,len(cea_list),4):
+        r=""
+        r=cea_list[i:i+4]
+        KEY_COM.append(r)
     decr_li=["AA","AT","AG","AC","TA","TT","TG","TC","GA","GT","GG","GC","CA","CT","CG","CC"]
-    random.shuffle(decr_li)
-
+    res = {} 
+    for key in KEY_COM: 
+        for value in decr_li: 
+            res[key] = value 
+            decr_li.remove(value) 
+            break 
+   
     for i in range(0,len(a),4):
-        d=int(KEY_COM.get((a[i:i+4])))
-        # print(d)
-        Com_strn+=str(decr_li[((d))])
+        d=str(res.get((a[i:i+4])))
+        
+        Com_strn+=d
 
     DNA_code={
         "A":"00",
@@ -59,7 +49,9 @@ def DNA_coding_decrypt(a,random_k):
         }
     DNA_decoded_strn=""
     for i in Com_strn:
+
         DNA_decoded_strn+=str(DNA_code.get(str(i)))
+    
     return DNA_decoded_strn    
 
 
@@ -73,17 +65,30 @@ def DNA_coding_decrypt(a,random_k):
 
 
 def start_decrypt(Encrypted_strn):
-    Decrypt_Binary=DNA_coding_decrypt(Encrypted_strn,random_k)
+    cea_list=""
+    cea_list=Encrypted_strn[0:64]
+    key=""
+    key=Encrypted_strn[64:72]
+    mess=""
+    mess=Encrypted_strn[72:]
     z=8
-    l=0
-    while z<cr:
-        ka=Decrypt_Binary[l:l+z] 
-        xored=xor(ka,key,z)
+    y=0
+    
+    Decrypt_Binary=DNA_coding_decrypt(mess,cea_list)
+    while z<=len(Decrypt_Binary):
+        kb=Decrypt_Binary[y:z]
+        xored=xor(key,kb,len(key))
         key+=xored
-        l+=z
-        z*=2
+        y=z
+        z+=len(key)
+    
+    
+   
+    
     ans=text_from_bits(key)
+    
     return ans
+
 
 
 

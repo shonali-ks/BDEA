@@ -1,5 +1,7 @@
 import random
 import math
+xored_str=""
+key=""
 def xor(a, b, n):
     ans = "" 
     for i in range(n):  
@@ -15,11 +17,9 @@ def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
 
 def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     n = int(bits, 2)
-    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0' 
-def decimalToBinary(n): 
-    return bin(n).replace("0b", "")
+    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'   
 
-def DNA_coding_encrypt(a,random_k):
+def DNA_coding_encrypt(a,key):
     
     DNA_code={
     "00": "A",
@@ -31,7 +31,7 @@ def DNA_coding_encrypt(a,random_k):
     DNA_CODED_STR=""
     for i in range(0,int(n),2):
         c=""
-        c=str(xored_str[i:i+2])
+        c=str(a[i:i+2])
         DNA_CODED_STR+=str(DNA_code.get(str(c)))
       
     KEY_COM={
@@ -52,32 +52,28 @@ def DNA_coding_encrypt(a,random_k):
         "CG": 14,
         "CC": 15
         }
-    val=list(KEY_COM.values())
-    random.shuffle(val)
-    KEY_BIN=[]
-    for i in val:
-        binary=str(decimalToBinary(i))
-        x=len(binary)
-        for j in range(0,4-x):
-            binary="0"+binary
-        KEY_BIN.append(binary)
+    ceasar_list=["0101","0011","0001","0010","0110","1111","0111","1001","1010","0100","1000","1100","1110","1011","0000","1101"]
+    random.shuffle(ceasar_list)
     
+    key_1=""
+    for i in ceasar_list:
+        key_1+=i
 
+    key=key_1+key
+    
 
     EXP_STR=""
    
     for i in range(0,int(n/2),2):
         d=KEY_COM.get((DNA_CODED_STR[i:i+2]))
        
-        EXP_STR+=str(KEY_BIN[d])
-    return EXP_STR    
+        EXP_STR+=str(ceasar_list[d])
+     
+    return key+EXP_STR    
 
 
   
 
-
-
-        
 
 
 def start_encrypt(str1):
@@ -87,10 +83,13 @@ def start_encrypt(str1):
     for i in range(0,y,1):
         str1+="%"
     res=text_to_bits(str1)
+    
+
     n=len(res)
     z=8
+    
     key=res[0:z]
-    key.append(KEY_BIN)
+   
     xored_str=""
     cr=math.pow(2,wq)
     while z<cr:
@@ -99,10 +98,12 @@ def start_encrypt(str1):
         xored=xor(ka,kb,z)
         xored_str+=xored
         z+=z
-    random_k=random.randint(0,15)
-    Encrypted_strn=DNA_coding_encrypt(xored_str,random_k)
-    return Encrypted_strn
-  
+    
+    Encrypted_strn=DNA_coding_encrypt(xored_str,key)
+    
+    return (Encrypted_strn)
+
+ 
 
 
 
