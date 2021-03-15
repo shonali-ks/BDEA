@@ -28,16 +28,16 @@ class Server:
             username = c.recv(1024).decode()
             
             print('New connection. Username: '+str(username))
-            self.broadcast('New person joined the room. Username: '+username)
+            self.broadcast('*New person joined the room. Username: '+username)
 
             self.username_lookup[c] = username
 
-            self.clients.append(c)
+            self.clients.append((username,c))
              
             threading.Thread(target=self.handle_client,args=(c,addr,)).start()
 
     def broadcast(self,msg):
-        for connection in self.clients:
+        for ed,connection in self.clients:
             connection.send(msg.encode())
 
     def handle_client(self,c,addr):
@@ -55,8 +55,15 @@ class Server:
 
             if msg.decode() != '':
                 print('New message: '+str(msg.decode()))
-                for connection in self.clients:
-                    if connection != c:
-                        connection.send(msg)
+                df=str(msg.decode())
+                if df[0]=='y' :
+                    fg=str(c.recv(1024).decode())
+                    for d,connection in self.clients:
+                        if d == fg:
+                            connection.send(msg)
+                else:
+                    for sw,connection in self.clients:
+                        if connection != c:
+                            connection.send(msg)
 
 server = Server()

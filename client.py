@@ -3,6 +3,7 @@ import threading
 import math
 import random
 from encrypt import xor,text_to_bits,text_from_bits,DNA_coding_encrypt,start_encrypt
+from decrypt import xor,text_to_bits,text_from_bits,DNA_coding_decrypt,start_decrypt
 # from decrypt import *
 
 class Client:
@@ -33,12 +34,19 @@ class Client:
 
     def handle_messages(self):
         while 1:
-            print(self.s.recv(1204).decode())
+            mes=str(self.s.recv(1204).decode())
+            if mes[0]!='*':
+                fin=(mes[5:])
+                print(start_decrypt(fin))
 
     def input_handler(self):
         while 1:
             # in_str=input()
             # in_str=start_encrypt(in_str)
-            self.s.send((self.username+' - '+start_encrypt(input())).encode())
+            self.s.send((self.username+'-'+start_encrypt(input())).encode())
+
+            if self.username[0]=='y':
+                self.s.send(input().encode())
+
 
 client = Client()

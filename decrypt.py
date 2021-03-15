@@ -56,13 +56,6 @@ def DNA_coding_decrypt(a,cea_list):
 
 
 
-        
-
-
-
-
-
-
 
 def start_decrypt(Encrypted_strn):
     cea_list=""
@@ -82,12 +75,14 @@ def start_decrypt(Encrypted_strn):
         y=z
         z+=len(key)
     
-    
-   
-    
     ans=text_from_bits(key)
-    
-    return ans
+    sd=len(ans)-1
+    for i in range(len(ans)-1,0,-1):
+        if ans[i]=='%':
+            sd=sd-1
+        else :
+            break    
+    return ans[:sd]
 
 
 
