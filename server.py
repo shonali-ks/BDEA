@@ -55,8 +55,9 @@ class Server:
 
             if msg.decode() != '':
                 print('New message: '+str(msg.decode()))
-                df=str(msg.decode())
-                if df[0]=='y' :
+                op=c.recv(1024)
+                df=str(op.decode())
+                if df=='1' :
                     fg=str(c.recv(1024).decode())
                     for d,connection in self.clients:
                         if d == fg:

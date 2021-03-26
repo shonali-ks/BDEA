@@ -35,18 +35,22 @@ class Client:
     def handle_messages(self):
         while 1:
             mes=str(self.s.recv(1204).decode())
-            if mes[0]!='*':
-                fin=(mes[5:])
-                print(start_decrypt(fin))
+            if(mes[0]!='*'):
+                mes=mes.split('-')
+                print(start_decrypt(mes[1]))
 
     def input_handler(self):
         while 1:
-            # in_str=input()
+            
             # in_str=start_encrypt(in_str)
             self.s.send((self.username+'-'+start_encrypt(input())).encode())
+            in_str=input("1.End_to_end\t2.Broadcast\t")
+            self.s.send(in_str.encode())
 
-            if self.username[0]=='y':
+            if in_str=='1':
                 self.s.send(input().encode())
+            
+
 
 
 client = Client()
