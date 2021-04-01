@@ -1,5 +1,7 @@
 import random
 import math
+import tempfile
+
 xored_str=""
 key=""
 def xor(a, b, n):
@@ -17,7 +19,7 @@ def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
 
 def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     n = int(bits, 2)
-    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'   
+    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'    
 
 def DNA_coding_encrypt(a,key):
     
@@ -103,7 +105,34 @@ def start_encrypt(str1):
     
     return (Encrypted_strn)
 
-file_name=input("Enter file name ")
-plain_text=open(file_name,'r',encoding='utf-8')
-enc_text=open('encr.txt','w',encoding='utf-8')
-enc_text.write(start_encrypt(plain_text.read()))
+def hello_gcs(event, context):
+    from google.cloud import storage
+    """Triggered by a change to a Cloud Storage bucket.
+    Args:
+         event (dict): Event payload.
+         context (google.cloud.functions.Context): Metadata for the event.
+         storage_client = storage.Client()
+    bucket = storage_client.bucket(bdea-bucket-1)
+    blob = bucket.blob(destination_blob_name)
+
+    blob.upload_from_filename(encr.txt)
+    """
+    file = event
+    print(f"Processing file: {file['name']}.")
+    file_name=file['name']
+    storage_client = storage.Client()
+    bucket = storage_client.bucket('bdea-bucket-1')
+    blob = bucket.blob(file_name)
+    string1=blob.download_as_string()
+    # print(string)
+    enc=start_encrypt(str(string1))
+    enc=str(enc)
+    bucket1 = storage_client.bucket('encrypted-bdea')
+    blob1 = bucket1.blob(file_name)
+    file_name='/tmp/'+file_name
+    file1=open(file_name,'w+')
+    file1.write(enc)
+    print(file1.read())
+    file1.close()
+    blob1.upload_from_filename(file_name)
+    blob.delete()
